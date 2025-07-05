@@ -1,0 +1,12 @@
+{
+  "Version": 1,
+  "Hash": "49eGwbq0sq/uxRO0YVeezKQUOc0eKnwA7+td1QOMaSk=",
+  "Source": "HospitalManagement.Api",
+  "BasePath": "_content/HospitalManagement.Api",
+  "Mode": "Default",
+  "ManifestType": "Build",
+  "ReferencedProjectsConfiguration": [],
+  "DiscoveryPatterns": [],
+  "Assets": [],
+  "Endpoints": []
+}

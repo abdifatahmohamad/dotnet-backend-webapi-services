@@ -1,0 +1,177 @@
+DELETE FROM dbo.Users WHERE Email = 'admin@hospital.com';
+
+var hash = BCrypt.Net.BCrypt.HashPassword("Admin@secure!2025");
+Console.WriteLine(hash);
+
+
+dotnet ef migrations add SeedFix
+dotnet ef database update
+
+
+{
+  "fullName": "System Admin",
+  "email": "admin@hospital.com",
+  "password": "Admin@secure!2025",
+  "role": "Admin"
+}
+
+// REMOVE THIS ONCE ADMIN IS REGISTERED
+modelBuilder.Entity<User>().HasData(new User {
+    Id = 1,
+    FullName = "System Admin",
+    Email = "admin@hospital.com",
+    PasswordHash = BCrypt.Net.BCrypt.HashPassword("Admin@secure!2025"),
+    Role = "Admin"
+});
+
+This prevents future update conflicts like:
+"The seed entity for entity type 'User' cannot be added because another seed entity with the same key value already exists."
+
+Then delete the old migration and re-create a clean one:
+
+dotnet ef migrations remove
+dotnet ef migrations add CleanSeed
+dotnet ef database update
+
+{
+  "fullName": "Dr. John",
+  "email": "john@hospital.com",
+  "passwordHash": "John@1987",
+  "role": "Doctor"
+}
+
+{
+  "fullName": "Dr. Smith",
+  "email": "smith@hospital.com",
+  "passwordHash": "Smith@1985",
+  "role": "Doctor"
+}
+
+{
+  "fullName": "Dr. Alice",
+  "email": "alice@hospital.com",
+  "passwordHash": "Alice@1990",
+  "role": "Doctor"
+}
+
+{
+  "fullName": "Dr. Omar",
+  "email": "omar@hospital.com",
+  "passwordHash": "Omar@1975",
+  "role": "Doctor"
+}
+
+=====================================
+Update:
+{
+  "id": 4,
+  "fullName": "Dr. Omar Hassan",
+  "email": "omar@hospital.com",
+  "passwordHash": "NewOmar@2025",
+  "role": "Doctor"
+}
+
+====================================
+DELETE FROM [HospitalDb].[dbo].[Users];
+
+
+SELECT TOP (1000) [Id]
+      ,[FullName]
+      ,[Email]
+      ,[PasswordHash]
+      ,[Role]
+  FROM [HospitalDb].[dbo].[Users]
+
+SELECT * FROM dbo.Doctors;
+SELECT * FROM dbo.Nurses;
+SELECT * FROM dbo.Patients;
+
+
+SELECT COUNT(*) AS TotalUsers
+FROM [HospitalDb].[dbo].[Users];
+
+USE HospitalDb;
+GO
+SELECT * FROM dbo.Users;
+
+
+SELECT * FROM HospitalDb.dbo.Users;
+
+{
+  "email": "admin@hospital.com",
+  "password": "Admin@secure!2025"
+}
+
+-- Get all doctors with base info
+SELECT u.FullName, u.Email, d.Specialty
+FROM dbo.Users u
+JOIN dbo.Doctors d ON u.Id = d.UserId;
+
+
+DELETE FROM [HospitalDb].[dbo].[Users]
+WHERE FullName = 'Dr. Abdi Mohamed';
+
+
+SELECT * FROM [HospitalDb].[dbo].[Users]
+WHERE FullName = 'Dr. Abdi Mohamed';
+
+user will not delete their
+
+dotnet ef migrations add AddUniqueEmailIndex
+dotnet ef database update
+
+
+var hash = BCrypt.Net.BCrypt.HashPassword("Abdi@2025");
+
+UPDATE dbo.Users
+SET PasswordHash = '$2a$11$j2EiJsfdMVTQHk3ijltpUuQyvy3QFg2zGVHidPZyimfE9KFr0RKIq'
+WHERE Email = 'abdimohamed@hospital.com';
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

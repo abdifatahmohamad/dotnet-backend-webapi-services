@@ -1,0 +1,63 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
+    <UserSecretsId>317b5a95-f739-43d6-8906-1816315161b2</UserSecretsId>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- ✅ Entry point -->
+    <Compile Include="Controllers\AdminController.cs" />
+    <Compile Include="Controllers\UserProfileController.cs" />
+    <Compile Include="DTOs\AdminCreateUserDto.cs" />
+    <Compile Include="Migrations\20250623042412_InitialWithUserGuid.cs" />
+    <Compile Include="Migrations\20250623042412_InitialWithUserGuid.Designer.cs" />
+    <Compile Include="Migrations\HospitalDbContextModelSnapshot.cs" />
+    <Compile Include="Program.cs" />
+
+    <!-- ✅ Controllers -->
+    <Compile Include="Controllers\AuthController.cs" />
+    <Compile Include="Controllers\DoctorController.cs" />
+    <Compile Include="Controllers\NurseController.cs" />
+    <Compile Include="Controllers\PatientController.cs" />
+
+    <!-- ✅ Data -->
+    <Compile Include="Data\HospitalDbContext.cs" />
+
+    <!-- ✅ DTOs -->
+    <Compile Include="DTOs\UserLoginDto.cs" />
+    <Compile Include="DTOs\UserRegisterDto.cs" />
+
+    <!-- ✅ Migrations -->
+
+    <!-- ✅ Models -->
+    <Compile Include="Models\Doctor.cs" />
+    <Compile Include="Models\MedicalStaff.cs" />
+    <Compile Include="Models\Nurse.cs" />
+    <Compile Include="Models\Patient.cs" />
+    <Compile Include="Models\User.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="BCrypt.Net-Next" Version="4.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.6" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="9.0.6">
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+      <PrivateAssets>all</PrivateAssets>
+    </PackageReference>
+    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.6.2" />
+  </ItemGroup>
+
+  <!-- Optional: keep these if you want folders to show up in Solution Explorer -->
+  <ItemGroup>
+    <Folder Include="Interfaces\" />
+    <Folder Include="Helpers\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+</Project>
