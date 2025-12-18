@@ -1,0 +1,71 @@
+
+I use the following connection for the Hospital System server DB:
+
+docker run -e "ACCEPT_EULA=Y" -e "MSSQL_SA_PASSWORD=admin@2010" -p 1433:1433 --name hospitalSys-sql -v sql_data:/var/opt/mssql -d mcr.microsoft.com/mssql/server
+
+==========================================
+
+Phase 2 — Install the core NuGet packages (EF + Auth)
+
+Go to your project folder where HospitalSystem.Api.csproj exists and run:
+
+dotnet add package Microsoft.EntityFrameworkCore.SqlServer
+dotnet add package Microsoft.EntityFrameworkCore.Design
+dotnet add package Microsoft.AspNetCore.Authentication.JwtBearer
+dotnet add package BCrypt.Net-Next
+
+
+==================================================
+When installing EF and versioning issues, do the following:
+
+Option A (recommended): Use a local tool manifest (best for projects)
+
+This avoids global-tool corruption and keeps version pinned per repo.
+
+From the folder that contains your .csproj (HospitalSystem.Api):
+
+dotnet new tool-manifest
+
+dotnet tool install dotnet-ef --version 8.0.11
+
+
+Verify:
+
+dotnet ef --version
+
+=======================================
+
+docker rm -f hospitalSys-sql
+
+docker volume rm sql_data
+
+docker ps -a
+
+docker volume ls
+
+Make sure sql_data is not listed.
+
+docker volume rm hospital_sql_data
+
+
+===================================================
+
+{
+  "fullName": "System Admin",
+  "email": "admin@hospital.com",
+  "password": "Admin@secure!2025",
+  "role": "Admin"
+}
+
+$2a$11$g3xPPfcMydAXB4JXzkYNW./ks8bj8XkrxtslR4KXoXL3qVWRgqg1u
+
+dotnet ef migrations add AddUserRegistrationFlags
+dotnet ef database update
+
+
+
+
+
+
+
+
