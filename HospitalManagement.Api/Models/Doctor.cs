@@ -10,8 +10,9 @@ namespace HospitalManagement.Api.Models
 
         public string FullName { get; set; } = string.Empty;
         public string Email { get; set; } = string.Empty;
-        public string Specialty { get; set; } = string.Empty;
         public string Password { get; set; } = string.Empty;
+        public string Specialty { get; set; } = string.Empty;
+        public string Department { get; set; } = string.Empty;
         // Navigation to base User
         [ForeignKey(nameof(UserId))]
         public User User { get; set; } = null!;

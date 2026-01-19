@@ -37,19 +37,22 @@ namespace HospitalManagement.Api.Data
             modelBuilder.Entity<Doctor>()
                 .HasOne(d => d.User)
                 .WithMany()
-                .HasForeignKey(d => d.UserId);
+                .HasForeignKey(d => d.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Nurse ↔ User
             modelBuilder.Entity<Nurse>()
                 .HasOne(n => n.User)
                 .WithMany()
-                .HasForeignKey(n => n.UserId);
+                .HasForeignKey(n => n.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Patient ↔ User
             modelBuilder.Entity<Patient>()
                 .HasOne(p => p.User)
                 .WithMany()
-                .HasForeignKey(p => p.UserId);
+                .HasForeignKey(p => p.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
             // Doctor ↔ Assigned Patients
             modelBuilder.Entity<Doctor>()
@@ -64,6 +67,13 @@ namespace HospitalManagement.Api.Data
                 .WithOne(n => n.AssignedDoctor)
                 .HasForeignKey(n => n.AssignedDoctorId)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            // Nurse ↔ Assigned Patients
+            modelBuilder.Entity<Nurse>()
+                .HasMany(n => n.Patients)
+                .WithOne(p => p.AssignedNurse)
+                .HasForeignKey(p => p.AssignedNurseId)
+                .OnDelete(DeleteBehavior.SetNull);
         }
     }
 }

@@ -13,9 +13,6 @@
     <Compile Include="Controllers\AdminController.cs" />
     <Compile Include="Controllers\UserProfileController.cs" />
     <Compile Include="DTOs\AdminCreateUserDto.cs" />
-    <Compile Include="Migrations\20250623042412_InitialWithUserGuid.cs" />
-    <Compile Include="Migrations\20250623042412_InitialWithUserGuid.Designer.cs" />
-    <Compile Include="Migrations\HospitalDbContextModelSnapshot.cs" />
     <Compile Include="Program.cs" />
 
     <!-- ✅ Controllers -->
@@ -30,8 +27,11 @@
     <!-- ✅ DTOs -->
     <Compile Include="DTOs\UserLoginDto.cs" />
     <Compile Include="DTOs\UserRegisterDto.cs" />
+    <Compile Include="DTOs\AssignedPersonDto.cs" />
+    <Compile Include="DTOs\CreateDoctorRequest.cs" />
+    <Compile Include="DTOs\DoctorResponse.cs" />
+    <Compile Include="DTOs\AdminUpdateUserDto.cs" />
 
-    <!-- ✅ Migrations -->
 
     <!-- ✅ Models -->
     <Compile Include="Models\Doctor.cs" />
@@ -39,6 +39,8 @@
     <Compile Include="Models\Nurse.cs" />
     <Compile Include="Models\Patient.cs" />
     <Compile Include="Models\User.cs" />
+
+    <Compile Include="Migrations\*.cs" />
   </ItemGroup>
 
   <ItemGroup>

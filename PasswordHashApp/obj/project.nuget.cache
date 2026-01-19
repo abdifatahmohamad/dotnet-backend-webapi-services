@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "/kNCzYWjpzI=",
+  "success": true,
+  "projectFilePath": "/Users/abdifatahdev/Desktop/repos/dotnet-backend-webapi-services/PasswordHashApp/PasswordHashApp.csproj",
+  "expectedPackageFiles": [
+    "/Users/abdifatahdev/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512"
+  ],
+  "logs": []
+}

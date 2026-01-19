@@ -29,25 +29,45 @@ namespace HospitalManagement.Api.Controllers
             if (_context.Users.Any(u => u.Email == dto.Email))
                 return BadRequest("User with this email already exists.");
 
+            var roleNormalized = dto.Role.Trim().ToLower();
+
+            // ✅ Set ClinicalContext based on role:
+            // Doctor -> Department
+            // Nurse  -> Specialty
+            // Patient-> Ailment
+            string? clinicalContext = roleNormalized switch
+            {
+                "doctor" => dto.Department ?? "General",
+                "nurse" => dto.Specialty ?? "General",
+                "patient" => dto.Ailment ?? "Unspecified",
+                _ => null
+            };
+
+            if (clinicalContext == null)
+                return BadRequest("Invalid role. Must be Doctor, Nurse, or Patient.");
+
             var user = new User
             {
                 Id = Guid.NewGuid(),
                 FullName = dto.FullName,
                 Email = dto.Email,
                 PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Role = dto.Role
+                Role = dto.Role,
+                ClinicalContext = clinicalContext
             };
 
             _context.Users.Add(user);
-            switch (dto.Role.ToLower())
+
+            switch (roleNormalized)
             {
                 case "doctor":
                     _context.Doctors.Add(new Doctor
                     {
-                        UserId = user.Id, // ✅ Assign FK
+                        UserId = user.Id,
                         FullName = dto.FullName,
                         Email = dto.Email,
-                        Specialty = dto.Specialty ?? "General",
+                        Specialty = dto.Specialty ?? "General",     // doctor specialty (existing)
+                        Department = dto.Department ?? "General",
                         Password = "Hidden"
                     });
                     break;
@@ -55,10 +75,10 @@ namespace HospitalManagement.Api.Controllers
                 case "nurse":
                     _context.Nurses.Add(new Nurse
                     {
-                        UserId = user.Id, // ✅ Assign FK
+                        UserId = user.Id,
                         FullName = dto.FullName,
                         Email = dto.Email,
-                        Department = dto.Department ?? "General",
+                        Department = dto.Department ?? "General",   // nurse department (existing)
                         Password = "Hidden"
                     });
                     break;
@@ -66,16 +86,13 @@ namespace HospitalManagement.Api.Controllers
                 case "patient":
                     _context.Patients.Add(new Patient
                     {
-                        UserId = user.Id, // ✅ Assign FK
+                        UserId = user.Id,
                         FullName = dto.FullName,
                         Email = dto.Email,
                         Ailment = dto.Ailment ?? "Unspecified",
                         Password = "Hidden"
                     });
                     break;
-
-                default:
-                    return BadRequest("Invalid role. Must be Doctor, Nurse, or Patient.");
             }
 
             await _context.SaveChangesAsync();

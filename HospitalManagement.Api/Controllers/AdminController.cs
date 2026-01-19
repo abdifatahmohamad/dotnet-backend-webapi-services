@@ -23,29 +23,54 @@ namespace HospitalManagement.Api.Controllers
         [HttpPost]
         public async Task<IActionResult> CreateUser(AdminCreateUserDto dto)
         {
-            if (_context.Users.Any(u => u.Email.ToLower() == dto.Email.ToLower()))
+            var normalizedEmail = dto.Email.Trim().ToLower();
+
+            var emailExists = await _context.Users
+                .AnyAsync(u => u.Email.ToLower() == normalizedEmail);
+
+            if (emailExists)
                 return BadRequest("User with this email already exists.");
+
+            var roleNormalized = dto.Role.Trim().ToLower();
+
+            // ✅ ClinicalContext mapping based on YOUR actual schema:
+            // Doctor  -> Specialty
+            // Nurse   -> Department
+            // Patient -> Ailment
+            // Admin   -> null
+            string? clinicalContext = roleNormalized switch
+            {
+                "doctor" => dto.Specialty ?? "General",
+                "nurse" => dto.Department ?? "General",
+                "patient" => dto.Ailment ?? "Unspecified",
+                "admin" => null,
+                _ => null
+            };
+
+            if (clinicalContext == null && roleNormalized != "admin")
+                return BadRequest("Invalid role. Must be Doctor, Nurse, Patient, or Admin.");
 
             var user = new User
             {
                 Id = Guid.NewGuid(),
                 FullName = dto.FullName,
-                Email = dto.Email,
-                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
-                Role = dto.Role
+                Email = dto.Email.Trim(),
+                PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password), // ✅ same as /register
+                Role = dto.Role.Trim(),
+                ClinicalContext = clinicalContext
             };
 
             _context.Users.Add(user);
-            await _context.SaveChangesAsync(); // ✅ Save user first to resolve FK dependency
+            await _context.SaveChangesAsync(); // ✅ save first so FK is valid
 
-            switch (dto.Role.ToLower())
+            switch (roleNormalized)
             {
                 case "doctor":
                     _context.Doctors.Add(new Doctor
                     {
-                        UserId = user.Id, // ✅ Assign FK
+                        UserId = user.Id,
                         FullName = dto.FullName,
-                        Email = dto.Email,
+                        Email = dto.Email.Trim(),
                         Specialty = dto.Specialty ?? "General",
                         Password = "Hidden"
                     });
@@ -54,34 +79,36 @@ namespace HospitalManagement.Api.Controllers
                 case "nurse":
                     _context.Nurses.Add(new Nurse
                     {
-                        UserId = user.Id, // ✅ Assign FK
+                        UserId = user.Id,
                         FullName = dto.FullName,
-                        Email = dto.Email,
+                        Email = dto.Email.Trim(),
                         Department = dto.Department ?? "General",
-                        Password = "Hidden"
+                        Password = "Hidden",
+                        AssignedDoctorId = null
                     });
                     break;
 
                 case "patient":
                     _context.Patients.Add(new Patient
                     {
-                        UserId = user.Id, // ✅ Assign FK
+                        UserId = user.Id,
                         FullName = dto.FullName,
-                        Email = dto.Email,
+                        Email = dto.Email.Trim(),
                         Ailment = dto.Ailment ?? "Unspecified",
-                        Password = "Hidden"
+                        Password = "Hidden",
+                        AssignedDoctorId = null,
+                        AssignedNurseId = null // ✅ only if your Patient model has it
                     });
                     break;
 
-                default:
-                    return BadRequest("Invalid role. Must be Doctor, Nurse, or Patient.");
+                case "admin":
+                    // Admin has no profile table record
+                    break;
             }
 
             await _context.SaveChangesAsync();
             return CreatedAtAction(nameof(GetUserById), new { id = user.Id }, user);
         }
-
-
 
         // [GET] /api/admin/users - Get all users or filtered by role
         [HttpGet]
@@ -90,9 +117,16 @@ namespace HospitalManagement.Api.Controllers
             var query = _context.Users.AsQueryable();
 
             if (!string.IsNullOrEmpty(role))
-                query = query.Where(u => u.Role.ToLower() == role.ToLower());
+            {
+                var normalized = role.Trim().ToLower();
+                query = query.Where(u => u.Role.ToLower() == normalized);
+            }
 
-            return await query.ToListAsync();
+            // Optional: order for consistent UI
+            return await query
+                .OrderBy(u => u.Role)
+                .ThenBy(u => u.FullName)
+                .ToListAsync();
         }
 
         // [GET] /api/admin/users/{id} - Get user by ID
@@ -103,26 +137,35 @@ namespace HospitalManagement.Api.Controllers
             return user == null ? NotFound() : Ok(user);
         }
 
-        // [PUT] /api/admin/users/{id} - Update a user
+        // ✅ NEW: safer update DTO (recommended)
+        // If you MUST keep "User updatedUser" input, see note below.
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateUser(Guid id, User updatedUser)
+        public async Task<IActionResult> UpdateUser(Guid id, AdminUpdateUserDto dto)
         {
-            if (id != updatedUser.Id)
-                return BadRequest("User ID mismatch.");
-
             var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound();
+            if (user == null) return NotFound();
 
-            user.FullName = updatedUser.FullName;
-            user.Email = updatedUser.Email;
-            user.Role = updatedUser.Role;
+            user.FullName = dto.FullName.Trim();
+            user.Email = dto.Email.Trim();
+            user.Role = dto.Role.Trim();
 
-            // If password is provided, update it
-            if (!string.IsNullOrWhiteSpace(updatedUser.PasswordHash))
+            var roleNormalized = user.Role.Trim().ToLower();
+
+            // If password provided, hash it (plaintext in dto)
+            if (!string.IsNullOrWhiteSpace(dto.Password))
             {
-                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(updatedUser.PasswordHash);
+                user.PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password);
             }
+
+            // Keep ClinicalContext consistent with role-based meaning
+            user.ClinicalContext = roleNormalized switch
+            {
+                "doctor" => dto.Specialty ?? user.ClinicalContext ?? "General",
+                "nurse" => dto.Department ?? user.ClinicalContext ?? "General",
+                "patient" => dto.Ailment ?? user.ClinicalContext ?? "Unspecified",
+                "admin" => null,
+                _ => user.ClinicalContext
+            };
 
             _context.Users.Update(user);
             await _context.SaveChangesAsync();
@@ -135,8 +178,7 @@ namespace HospitalManagement.Api.Controllers
         public async Task<IActionResult> DeleteUser(Guid id)
         {
             var user = await _context.Users.FindAsync(id);
-            if (user == null)
-                return NotFound();
+            if (user == null) return NotFound();
 
             _context.Users.Remove(user);
             await _context.SaveChangesAsync();

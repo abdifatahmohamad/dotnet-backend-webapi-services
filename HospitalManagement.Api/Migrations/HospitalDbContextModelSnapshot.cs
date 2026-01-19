@@ -27,6 +27,10 @@ namespace HospitalManagement.Api.Migrations
                     b.Property<Guid>("UserId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("Department")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -91,6 +95,9 @@ namespace HospitalManagement.Api.Migrations
                     b.Property<Guid?>("AssignedDoctorId")
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<Guid?>("AssignedNurseId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -107,6 +114,8 @@ namespace HospitalManagement.Api.Migrations
 
                     b.HasIndex("AssignedDoctorId");
 
+                    b.HasIndex("AssignedNurseId");
+
                     b.ToTable("Patients");
                 });
 
@@ -115,6 +124,9 @@ namespace HospitalManagement.Api.Migrations
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ClinicalContext")
+                        .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -155,7 +167,7 @@ namespace HospitalManagement.Api.Migrations
                     b.HasOne("HospitalManagement.Api.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("User");
@@ -171,7 +183,7 @@ namespace HospitalManagement.Api.Migrations
                     b.HasOne("HospitalManagement.Api.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AssignedDoctor");
@@ -186,13 +198,20 @@ namespace HospitalManagement.Api.Migrations
                         .HasForeignKey("AssignedDoctorId")
                         .OnDelete(DeleteBehavior.Restrict);
 
+                    b.HasOne("HospitalManagement.Api.Models.Nurse", "AssignedNurse")
+                        .WithMany("Patients")
+                        .HasForeignKey("AssignedNurseId")
+                        .OnDelete(DeleteBehavior.SetNull);
+
                     b.HasOne("HospitalManagement.Api.Models.User", "User")
                         .WithMany()
                         .HasForeignKey("UserId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.Navigation("AssignedDoctor");
+
+                    b.Navigation("AssignedNurse");
 
                     b.Navigation("User");
                 });
@@ -201,6 +220,11 @@ namespace HospitalManagement.Api.Migrations
                 {
                     b.Navigation("Nurses");
 
+                    b.Navigation("Patients");
+                });
+
+            modelBuilder.Entity("HospitalManagement.Api.Models.Nurse", b =>
+                {
                     b.Navigation("Patients");
                 });
 #pragma warning restore 612, 618

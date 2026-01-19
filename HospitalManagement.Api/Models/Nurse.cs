@@ -19,6 +19,8 @@ namespace HospitalManagement.Api.Models
         // Relationships - assigned Doctor
         public Guid? AssignedDoctorId { get; set; } // FK
         public Doctor? AssignedDoctor { get; set; }
+
+        public List<Patient> Patients { get; set; } = new();
     }
 }
 
